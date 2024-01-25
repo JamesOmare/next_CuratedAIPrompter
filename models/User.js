@@ -4,7 +4,7 @@ const userSchema = new Schema({
     username: {
         type: String,
         required: [true, 'Please enter a username'],
-        match: [/^[a-zA-Z0-9]+$/, 'Please enter a valid username, it should containt 8-20 alphanumeric characters and be unique'],
+        match: [/^(?=.{8,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/, "Username invalid, it should contain 8-20 alphanumeric letters and be unique!"],
         unique: true,
     },
     
@@ -21,3 +21,8 @@ const userSchema = new Schema({
     },
 });
 
+
+// check if the model exists, if it does, use it, if not, create it
+const User = models.User || model('User', userSchema);
+
+export default User;
