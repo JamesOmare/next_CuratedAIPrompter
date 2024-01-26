@@ -2,11 +2,13 @@
 
 import { useState, useEffect } from 'react'
 import { signIn, signOut, useSession, getProviders } from 'next-auth/react'
-import { useRouter } from 'next/router'
+import { useRouter } from 'next/navigation'
 
 import Form from '@components/Form'
 
 const CreatePrompt = () => {
+    const router = useRouter();
+    const { data: session } = useSession();
 
     const [submitting, setSubmitting] = useState(false);
     const [post, setPost] = useState(
@@ -17,17 +19,33 @@ const CreatePrompt = () => {
     );
 
     const createPrompt = async () => {
+        e.preventDefault();
         setSubmitting(true);
-        const response = await fetch('/api/create-prompt', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(post),
-        });
-        setSubmitting(false);
-        const { data } = await response.json();
-        router.push(`/prompt/${data.id}`);
+
+        try {
+            const response = await fetch('/api/prompt/new', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    prompt: post.prompt,
+                    userId: session?.user.id,
+                    tag: post.tag,
+                }),
+            });
+
+            if(response.ok){
+                router.push('/');
+            }
+
+        } catch (error) {
+            console.error(error);
+            
+        } finally {
+            setSubmitting(false);
+        }
+ 
     }
 
     return (
